@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "#lib/*": [
+        "./src/lib/*"
+      ]
+    },
+    "allowUnusedLabels": false,
+    "strictNullChecks": true
+  }
+}
