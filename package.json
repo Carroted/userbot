@@ -1,9 +1,10 @@
 {
   "name": "userbot",
-  "version": "1.0.0",
-  "module": "examples/index.ts",
+  "version": "1.1.1",
+  "main": "dist/index.js",
   "type": "module",
   "devDependencies": {
+    "bun-plugin-dts": "^0.2.1",
     "bun-types": "latest"
   },
   "peerDependencies": {
@@ -16,5 +17,10 @@
     "pako": "^1.0.10",
     "ws": "^8.13.0",
     "zlib-sync": "^0.1.9"
+  },
+  "scripts": {
+    "build": "bun run ./scripts/build.ts",
+    "dev": "bun run ./examples/index.ts",
+    "pack": "bun run build && npm pack"
   }
 }
