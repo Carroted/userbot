@@ -14,6 +14,7 @@ import APIGuild from "./APIGuild";
 import Guild from "./Guild";
 import Events, { EventHandler, EventParams } from "./Events";
 import pako from "pako";
+import Role from "./Role";
 
 function toArrayBuffer(data: pako.Data) {
     if (typeof data === 'string') {
@@ -76,7 +77,7 @@ export default class Client {
         });
     }
 
-    emit(event: Events, ...args: any[]) {
+    emit<K extends keyof EventParams>(event: K, ...args: EventParams[K]) {
         if (!this.listeners[event]) return;
         for (let listener of this.listeners[event]) {
             listener(...args);
@@ -115,6 +116,7 @@ export default class Client {
             JSON.stringify({
                 recipients: [userID]
             }));
+
         let json = await res.json() as any;
         json.channel = new Channel(this, json.id);
         return json as {
@@ -242,12 +244,38 @@ export default class Client {
     guilds: {
         [id: string]: Guild
     } = {};
+    roles: {
+        [id: string]: Role
+    } = {};
     privateChannelIDs: string[] = [];
 
     send(op: OPCode, d: any) {
         if (this.ws) {
             this.ws.send(pack({ op, d }));
         }
+    }
+
+    async getUserInfo(userID: string, guildID: string) {
+        // the https://discord.com/api/v9/users/${userID}/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=${guildID} is good for this
+        let res = await this.apiRequest(
+            `users/${userID}/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=${guildID}`,
+            "https://discord.com/channels/@me",
+            "GET"
+        );
+
+        let json = await res.json();
+        return json as {
+            mutual_guilds: {
+                id: string,
+                nick: string | null,
+            }[],
+            user: APIUser,
+            guild_member?: {
+                nick: string | null,
+                joined_at: string,
+                roles: string[],
+            }
+        };
     }
 
     async login(token: string, superProperties: string, cookie: string, startUrl: string = "https://discord.com/channels/@me") {
@@ -436,6 +464,9 @@ export default class Client {
                                 this.apiChannels[channel.id] = channel;
                                 this.channels[channel.id] = new Channel(this, channel.id);
                             });
+                            guild.roles.forEach((role) => {
+                                this.roles[role.id] = new Role(this, role);
+                            });
                         });
                         // for all the channels, add them to the channels object
                         packet.d.private_channels.forEach((channel: APIChannel) => {
@@ -474,6 +505,30 @@ export default class Client {
                         break;
                     }
                     case 'PRESENCE_UPDATE': {
+                        break;
+                    }
+                    case 'GUILD_DELETE': {
+                        this.emit(Events.GuildDelete, packet.d.id);
+                        break;
+                    }
+                    case 'GUILD_MEMBER_REMOVE': {
+                        this.emit(Events.GuildMemberRemove, packet.d.guild_id, packet.d.user);
+                        break;
+                    }
+                    case 'GUILD_BAN_ADD': {
+                        this.emit(Events.GuildBanAdd, packet.d.guild_id, packet.d.user);
+                        break;
+                    }
+                    case 'GUILD_ROLE_CREATE': {
+                        this.emit(Events.GuildRoleCreate, packet.d.guild_id, packet.d.role);
+                        break;
+                    }
+                    case 'GUILD_ROLE_UPDATE': {
+                        this.emit(Events.GuildRoleUpdate, packet.d.guild_id, packet.d.role);
+                        break;
+                    }
+                    case 'GUILD_ROLE_DELETE': {
+                        this.emit(Events.GuildRoleDelete, packet.d.guild_id, packet.d.role_id);
                         break;
                     }
                     // otherwise, log the t and d

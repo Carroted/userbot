@@ -1,4 +1,5 @@
 import APIGuild from "./APIGuild";
+import APIRole from "./APIRole";
 import Channel from "./Channel";
 import Client from "./Client";
 
@@ -8,19 +9,7 @@ export default class Guild {
     readonly name: string;
     readonly icon: string | null;
     readonly channels: Channel[];
-    readonly roles: {
-        color: number;
-        flags: number;
-        hoist: boolean;
-        icon: any | null;
-        id: string;
-        managed: boolean;
-        mentionable: boolean;
-        name: string;
-        permissions: string;
-        position: number;
-        tags?: any
-    }[];
+    readonly roles: APIRole[];
     readonly memberCount: number;
     readonly joinedAt: string;
     readonly ownerId: string;
