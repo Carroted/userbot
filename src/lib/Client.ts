@@ -576,8 +576,5 @@ export default class Client {
         this.superProperties = null;
         this.cookie = null;
         this.sessionID = null;
-
-        // @ts-ignore
-        this = null;
     }
 }
