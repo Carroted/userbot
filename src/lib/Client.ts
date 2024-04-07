@@ -558,4 +558,26 @@ export default class Client {
         });
     }
 
+    destroy() {
+        if (this.ws) {
+            this.ws.close();
+        }
+        // dismantle everything
+        this.ws = null;
+        this.listeners = {};
+        this.user = null;
+        this.activeChannel = null;
+        this.channels = {};
+        this.apiChannels = {};
+        this.guilds = {};
+        this.roles = {};
+        this.privateChannelIDs = [];
+        this.token = null;
+        this.superProperties = null;
+        this.cookie = null;
+        this.sessionID = null;
+
+        // @ts-ignore
+        this = null;
+    }
 }
