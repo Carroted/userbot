@@ -480,8 +480,8 @@ export default class Client {
                         break;
                     }
                     case 'MESSAGE_CREATE': {
-                        this.apiChannels[packet.d.channel_id] = packet.d.channel;
-                        this.channels[packet.d.channel_id] = new Channel(this, packet.d.channel_id);
+                        //this.apiChannels[packet.d.channel_id] = packet.d.channel;
+                        //this.channels[packet.d.channel_id] = new Channel(this, packet.d.channel_id);
                         this.emit(Events.MessageCreate, {
                             ...packet.d,
                             channel: this.channels[packet.d.channel_id],

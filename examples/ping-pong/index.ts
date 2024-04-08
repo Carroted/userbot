@@ -11,7 +11,8 @@ client.on(Events.Ready, (d) => {
 });
 
 client.on(Events.MessageCreate, (message) => {
-    if (message.content === "ping") {
+    if (message.content === "ping" && message.author.id === client.user!.id) {
+        message.channel.sendMessage("pong");
         message.channel.sendMessage("pong");
     }
 });
